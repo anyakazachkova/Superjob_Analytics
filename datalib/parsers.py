@@ -95,48 +95,75 @@ class SuperjobParser:
             tree = BeautifulSoup(response.content, 'html.parser')
 
             # get salary
-            salary = tree.find_all(
-                'span', 
-                {
-                    'class': '_2eYAG _2yOtM _1htjG _3GXPo'
-                }
-            )[0].text
-            vacancy_info['salary'] = ''.join(filter(str.isdigit, salary))
+            try:
+                salary = tree.find_all(
+                    'span', 
+                    {
+                        'class': '_2eYAG _2yOtM _1htjG _3GXPo'
+                    }
+                )[0].text
+                vacancy_info['salary'] = ''.join(filter(str.isdigit, salary))
+            except Exception as e:
+                self.logger.exception(
+                    f'Error while parsing salary in {href}: {e}'
+                )
 
             # get education requirement
-            vacancy_info['education'] = tree.find_all(
-                'span',
-                {
-                    'class': '_32IJo _1htjG _3hV-5'
-                }
-            )[0].text.capitalize()
+            try:
+                data_found = tree.find_all(
+                    'span',
+                    {
+                        'class': '_32IJo _1htjG _3hV-5'
+                    }
+                )
+                vacancy_info['education'] = data_found[0].text.capitalize() \
+                                                if len(data_found) > 0 else 'None'
+            except Exception as e:
+                self.logger.exception(
+                    f'Error while parsing education requirement in {href}: {e}'
+                )
 
             # get address, experience, employment
-            vacancy_info['address'] = tree.find_all(
-                'span',
-                {
-                    'class': '_1qYY4'
-                }
-            )[0].text
+            try:
+                vacancy_info['address'] = tree.find_all(
+                    'span',
+                    {
+                        'class': '_1qYY4'
+                    }
+                )[0].text
+            except Exception as e:
+                self.logger.exception(
+                    f'Error while parsing education address, experience, employment in {href}: {e}'
+                )
 
             # get other info
-            other_info = tree.find_all(
-                'span',
-                {
-                    'class': '_32IJo _1htjG _3GXPo'
-                }
-            )
-            vacancy_info['experience'], \
-                vacancy_info['employment'] =  \
-                        other_info[-2].text, other_info[-1].text.capitalize()
+            try:
+                other_info = tree.find_all(
+                    'span',
+                    {
+                        'class': '_32IJo _1htjG _3GXPo'
+                    }
+                )
+                vacancy_info['experience'], \
+                    vacancy_info['employment'] =  \
+                            other_info[-2].text, other_info[-1].text.capitalize()
+            except Exception as e:
+                self.logger.exception(
+                    f'Error while parsing other info in {href}: {e}'
+                )
             
             # get description
-            vacancy_info['description'] = tree.find_all(
-                'span',
-                {
-                    'class': '_39I1Z Rg6Ej _1htjG _65Aie _3GXPo _3fUkL'
-                }
-            )[0].text
+            try:
+                vacancy_info['description'] = tree.find_all(
+                    'span',
+                    {
+                        'class': '_39I1Z Rg6Ej _1htjG _65Aie _3GXPo _3fUkL'
+                    }
+                )[0].text
+            except Exception as e:
+                self.logger.exception(
+                    f'Error while parsing description in {href}: {e}'
+                )
 
             self.logger.info(f'Successfully parsed: {href}')
         
@@ -157,7 +184,7 @@ class SuperjobParser:
                 vacancy_info = self._parse_vacancy_page(value, key)
                 result.append(vacancy_info)
             except Exception as e:
-                self.logger.info(f'Error while parsing vacancy {value}: {e}')
+                self.logger.error(f'Error while parsing vacancy {value}: {e}')
         
         return pd.DataFrame(result)
     
