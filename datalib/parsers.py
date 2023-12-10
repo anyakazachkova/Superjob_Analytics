@@ -49,11 +49,11 @@ class SuperjobParser:
             if response.status_code in [200, 201, 202]:
                 tree = BeautifulSoup(response.content, 'html.parser')
                 items = tree.find_all(
-                    'span', 
-                    {
-                        'class': '_3j-5N _2BF76 _1Sjvs _21_a3 _2yOtM _1htjG _65Aie _3WSA8'
-                    }
-                )
+                                    'span', 
+                                    {
+                                        'class': '_3xQyu _3h-Il Ev2_p _3vg36 _133uk rPK4q _2ASNn bb-JF'
+                                    }
+                                )
 
                 if len(items) == 0:
                     self.logger.info(f'No vacancies have been found on page {page}, stop searching')

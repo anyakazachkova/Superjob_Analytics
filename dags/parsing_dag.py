@@ -1,10 +1,18 @@
+import sys
+import os
 from datetime import timedelta
 from typing import NoReturn
 from airflow.operators.python import PythonOperator
 from airflow.models import DAG
 from airflow.utils.dates import days_ago
 
+sys.path.append(
+    os.path.join(
+        "Superjob_Parser"
+    )
+)
 from datalib.parsers import SuperjobParser
+from definitions import ROOT_PATH
 
 DEFAULT_ARGS = {
     "owner": "Anna Kazachkova",
@@ -33,10 +41,20 @@ def parse_data() -> NoReturn:
     parser = SuperjobParser()
     df = parser.parse_vacancies(
         {
-            'keywords': 'Python'
+            'keywords': 'python'
         }
     )
     parser.save_result(
         df,
-        'parsed_data'
+        os.path.join(
+            ROOT_PATH,
+            'results',
+            'parsed_data'
+        )
     )
+
+task_parse_data = PythonOperator(
+    task_id="parse_data", 
+    python_callable=parse_data, 
+    dag=dag
+)
