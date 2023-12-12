@@ -99,7 +99,7 @@ class SuperjobParser:
                 salary = tree.find_all(
                     'span', 
                     {
-                        'class': '_2eYAG _2yOtM _1htjG _3GXPo'
+                        'class': '_2eYAG _133uk rPK4q Mq4Ti'
                     }
                 )[0].text
                 vacancy_info['salary'] = ''.join(filter(str.isdigit, salary))
@@ -113,7 +113,7 @@ class SuperjobParser:
                 data_found = tree.find_all(
                     'span',
                     {
-                        'class': '_32IJo _1htjG _3hV-5'
+                        'class': '_38__N rPK4q Mq4Ti'
                     }
                 )
                 vacancy_info['education'] = data_found[0].text.capitalize() \
@@ -141,7 +141,7 @@ class SuperjobParser:
                 other_info = tree.find_all(
                     'span',
                     {
-                        'class': '_32IJo _1htjG _3GXPo'
+                        'class': '_38__N rPK4q Mq4Ti'
                     }
                 )
                 vacancy_info['experience'], \
@@ -157,7 +157,7 @@ class SuperjobParser:
                 vacancy_info['description'] = tree.find_all(
                     'span',
                     {
-                        'class': '_39I1Z Rg6Ej _1htjG _65Aie _3GXPo _3fUkL'
+                        'class': '_39I1Z _2u6Iv rPK4q _2ASNn Mq4Ti MFNgx'
                     }
                 )[0].text
             except Exception as e:
