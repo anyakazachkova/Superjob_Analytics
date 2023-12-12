@@ -43,7 +43,8 @@ class SuperjobParser:
                 params={
                     **params,
                     'page': page
-                }
+                },
+                verify=False
             )
 
             if response.status_code in [200, 201, 202]:
@@ -83,7 +84,8 @@ class SuperjobParser:
             f'https://www.superjob.ru/{href}', 
             params={
                 **params,
-            }
+            },
+            verify=False
         )
 
         vacancy_info = {
