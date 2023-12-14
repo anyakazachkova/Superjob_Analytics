@@ -1,3 +1,5 @@
+import os
+
 from datalib.parsers import SuperjobParser
 
 
@@ -10,6 +12,5 @@ if __name__ == '__main__':
     df = parser.parse_vacancies(params)
     parser.save_result(
         df,
-        'results',
-        'parsed_data'
+        os.path.join('results', 'parsed_data')        
     )
