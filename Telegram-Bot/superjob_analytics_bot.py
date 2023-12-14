@@ -1,9 +1,17 @@
+import pandas as pd
+import numpy as np
+
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 
 class SuperjobAnalyticsBot:
 
-    def __init__(self, bot_key):
+    def __init__(self, 
+                 bot_key: str, 
+                 mode: str
+                 ):
+
+        self.mode = mode
 
         self.updater = Updater(bot_key, use_context=True)
         self.dispatcher = self.updater.dispatcher
@@ -28,6 +36,11 @@ class SuperjobAnalyticsBot:
         self.dispatcher.add_handler(salary_stat_handler)
         self.dispatcher.add_handler(echo_handler)
 
+        if mode == 'dev':
+            self.data = pd.read_parquet(
+                'results/parsed_data'
+            )
+
     def run(self):
         self.updater.start_polling()
         self.updater.idle()        
@@ -40,13 +53,17 @@ class SuperjobAnalyticsBot:
         answer += "/salary_stat - Show current salary statistics"
         update.message.reply_text(answer)
 
-    @staticmethod
-    def vacancies_count(update, context):
-        update.message.reply_text('Here will be vacancies count')
+    def vacancies_count(self, update, context):
+        result = self.data['name'].count()
+        update.message.reply_text(f'Currently there are {result} vacancies')
 
-    @staticmethod
-    def salary_stat(update, context):
-        update.message.reply_text('Here will be salary stat')
+    def salary_stat(self, update, context):
+        self.data['salary'] = self.data['salary'].apply(
+            lambda x: int(x) 
+            if len(x) > 0 else np.nan
+        )
+        result = self.data['salary'].mean()
+        update.message.reply_text(f'Mean salary is {result}')
 
     @staticmethod
     def echo(update, context):
