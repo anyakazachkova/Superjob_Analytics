@@ -1,14 +1,16 @@
 import sys
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import NoReturn
 from airflow.operators.python import PythonOperator
 from airflow.models import DAG
 from airflow.utils.dates import days_ago
 
+sys.path.append("Superjob_Parser")
 sys.path.append(
     os.path.join(
-        "Superjob_Parser"
+        "Superjob_Parser",
+        "SuperJob"
     )
 )
 from datalib.parsers import SuperjobParser
@@ -29,7 +31,7 @@ PARSING_PARAMS = {
 
 dag = DAG(
 	dag_id='parsing_dag',
-    schedule_interval="0 17 * * *",
+    schedule_interval="20 15 * * *",
     start_date=days_ago(2),
     catchup=False,
     tags=["BigDataProject"],

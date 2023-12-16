@@ -1,6 +1,6 @@
 import os
 
-from datalib.parsers import SuperjobParser
+from SuperJob.datalib.parsers import SuperjobParser
 
 
 if __name__ == '__main__':
