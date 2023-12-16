@@ -17,7 +17,7 @@ class SuperjobParser:
     """
 
     def __init__(self, 
-                 chunksize: int = 100000
+                 chunksize: int = 100
                  ) -> None:
         
         self.chunksize = chunksize
@@ -39,7 +39,7 @@ class SuperjobParser:
         while True:
             self.logger.info(f'Start parsing vacancies: {params}: page {page}')
             response = requests.get(
-                'https://www.superjob.ru/vacancy/search/', 
+                'https://www.superjob.ru/vacancii/it-internet-svyaz-telekom/', 
                 params={
                     **params,
                     'page': page
