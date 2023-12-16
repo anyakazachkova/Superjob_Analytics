@@ -3,3 +3,4 @@ keys.py
 __pycache__
 *.json
 *.parquet
+credentials.conf
