@@ -6,7 +6,7 @@ from datalib.parsers import SuperjobParser
 if __name__ == '__main__':
 
     # get data
-    params = {'keywords': 'Python'}
+    params = {}
 
     parser = SuperjobParser()
     df = parser.parse_vacancies(params)
