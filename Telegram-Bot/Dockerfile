@@ -2,11 +2,11 @@ FROM python:3.9-slim
 
 WORKDIR /Telegram-Bot
 
-COPY requirements.txt ./
-COPY main.py ./
+COPY requirements_tg.txt ./
+COPY main_tg.py ./
 COPY superjob_analytics_bot.py ./
-COPY keys.py ./
+COPY keys_tg.py ./
 
-RUN pip install -r requirements.txt
+RUN pip install -r requirements_tg.txt
 
-CMD ["python", "main.py"]
+CMD ["python", "main_tg.py"]
