@@ -35,7 +35,8 @@ dag = DAG(
 
 task_upload_data = BashOperator(
     task_id='upload_data_to_hadoop',
-    bash_command=f'bash {ROOT_PATH}/bash_scipts/load_data.sh'
+    bash_command=f'bash {ROOT_PATH}/bash_scripts/load_data.sh ',
+    dag=dag
 )
 
 task_upload_data
