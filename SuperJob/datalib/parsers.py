@@ -1,5 +1,6 @@
 import sys
 import os
+import re
 import requests
 import logging
 from datetime import timedelta, datetime
@@ -104,13 +105,14 @@ class SuperjobParser:
                         'class': '_2eYAG _133uk rPK4q Mq4Ti'
                     }
                 )[0].text
-                vacancy_info['salary'] = ''.join(filter(str.isdigit, salary))
+                vacancy_info['min_salary'], vacancy_info['max_salary'] = \
+                        self._prepare_salary_string(salary)
             except Exception as e:
                 self.logger.exception(
                     f'Error while parsing salary in {href}: {e}'
                 )
 
-            # get education requirement
+            # get vacancy requirements
             try:
                 data_found = tree.find_all(
                     'span',
@@ -118,14 +120,29 @@ class SuperjobParser:
                         'class': '_38__N rPK4q Mq4Ti'
                     }
                 )
-                vacancy_info['education'] = data_found[0].text.capitalize() \
-                                                if len(data_found) > 0 else 'None'
+                vacancy_info['experience'], vacancy_info['employment'] = \
+                                self._prepare_requirements_string(data_found)
             except Exception as e:
                 self.logger.exception(
                     f'Error while parsing education requirement in {href}: {e}'
                 )
 
-            # get address, experience, employment
+            # get education requirements
+            try:
+                data_found = tree.find_all(
+                    'span',
+                    {
+                        'class': '_38__N rPK4q k11EZ'
+                    }
+                )
+                vacancy_info['education'] = \
+                        self._prepare_education_string(data_found)
+            except Exception as e:
+                self.logger.exception(
+                    f'Error while parsing education requirement in {href}: {e}'
+                )
+
+            # get address
             try:
                 vacancy_info['address'] = tree.find_all(
                     'span',
@@ -136,22 +153,6 @@ class SuperjobParser:
             except Exception as e:
                 self.logger.exception(
                     f'Error while parsing education address, experience, employment in {href}: {e}'
-                )
-
-            # get other info
-            try:
-                other_info = tree.find_all(
-                    'span',
-                    {
-                        'class': '_38__N rPK4q Mq4Ti'
-                    }
-                )
-                vacancy_info['experience'], \
-                    vacancy_info['employment'] =  \
-                            other_info[-2].text, other_info[-1].text.capitalize()
-            except Exception as e:
-                self.logger.exception(
-                    f'Error while parsing other info in {href}: {e}'
                 )
             
             # get description
@@ -197,3 +198,38 @@ class SuperjobParser:
         os.makedirs(path, exist_ok=True)
         dd.from_pandas(df, chunksize=self.chunksize) \
             .to_parquet(path)
+        
+    @staticmethod
+    def _prepare_salary_string(text):
+        text = text.replace('\xa0', '') \
+                    .replace('₽', '')
+        amounts = re.findall(r'\d+', text)
+
+        min_salary, max_salary = np.nan, np.nan
+        if len(amounts) > 0:
+            min_salary = int(amounts[0])
+            if len(amounts) > 1:
+                max_salary = int(amounts[1])
+
+        return min_salary, max_salary
+    
+    @staticmethod
+    def _prepare_requirements_string(data_found):
+        experience, employment = np.nan, np.nan
+        for el in data_found:
+            text = el.text.lower()
+            if 'опыт работы' in text:
+                experience = text.split('опыт работы ')[1]
+            elif ('работа' in text) or ('занятость' in text) \
+                    or ('день' in text):
+                employment = text
+        return experience, employment
+    
+    @staticmethod
+    def _prepare_education_string(data_found):
+        education = np.nan
+        for el in data_found:
+            text = el.text.lower()
+            if 'образование' in text:
+                education = text
+        return education

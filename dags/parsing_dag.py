@@ -26,12 +26,12 @@ DEFAULT_ARGS = {
 }
 
 PARSING_PARAMS = {
-    'keywords': 'Python'
+    # 'keywords': 'Python'
 }
 
 dag = DAG(
 	dag_id='parsing_dag',
-    schedule_interval="20 15 * * *",
+    schedule_interval="30 15 * * *",
     start_date=days_ago(2),
     catchup=False,
     tags=["BigDataProject"],
@@ -43,7 +43,7 @@ def parse_data() -> NoReturn:
     parser = SuperjobParser()
     df = parser.parse_vacancies(
         {
-            'keywords': 'python'
+            # 'keywords': 'python'
         }
     )
     parser.save_result(

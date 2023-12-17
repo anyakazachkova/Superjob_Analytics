@@ -58,11 +58,7 @@ class SuperjobAnalyticsBot:
         update.message.reply_text(f'Currently there are {result} vacancies')
 
     def salary_stat(self, update, context):
-        self.data['salary'] = self.data['salary'].apply(
-            lambda x: int(x) 
-            if len(x) > 0 else np.nan
-        )
-        result = self.data['salary'].mean()
+        result = self.data['min_salary'].mean()
         update.message.reply_text(f'Mean salary is {result}')
 
     @staticmethod
