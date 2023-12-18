@@ -39,4 +39,10 @@ task_upload_data = BashOperator(
     dag=dag
 )
 
-task_upload_data
+task_calculate_metrics = BashOperator(
+    task_id='calculate_metrics',
+    bash_command=f'bash {ROOT_PATH}/bash_scripts/calculate_metrics.sh ',
+    dag=dag
+)
+
+task_upload_data >> task_calculate_metrics
