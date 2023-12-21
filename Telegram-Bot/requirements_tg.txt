@@ -1,4 +1,6 @@
 pandas
 numpy
+matplotlib
+seaborn
 python-telegram-bot==13.7
 pyarrow==14.0.1

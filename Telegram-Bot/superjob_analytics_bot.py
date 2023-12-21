@@ -1,6 +1,10 @@
 import os
+import io
 import pandas as pd
 import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from prettytable import PrettyTable
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
@@ -18,15 +22,15 @@ class SuperjobAnalyticsBot:
         start_handler = CommandHandler('start', self.start)
         vacancies_count_handler = CommandHandler(
             'vacancies_count', 
-            self.vacancies_count
+            self.command_vacancies_count
         )
         salary_stat_handler = CommandHandler(
             'salary_stat', 
-            self.salary_stat
+            self.command_salary_stat
         )
         echo_handler = MessageHandler(
             Filters.text & ~Filters.command, 
-            self.echo
+            self.command_echo
         )
     
 
@@ -48,25 +52,89 @@ class SuperjobAnalyticsBot:
         ]
         cleaned_data = [el for el in cleaned_data if len(el) > 1]
 
-        self.metrics = pd.DataFrame(
-            cleaned_data[1:], columns=cleaned_data[0]
+        metrics = pd.DataFrame(
+            cleaned_data[1:], 
+            columns=cleaned_data[0]
         )
+
+        metrics.columns = [
+            col.split('.')[1]
+            for col in metrics.columns
+        ]
+
+        metrics.iloc[:, 1:] = metrics.iloc[:, 1:] \
+                                .replace('NULL', np.nan) \
+                                .astype(float) \
+                                .round(2)
+        metrics['n_count'] = metrics['n_count'] \
+                                .astype(int)
+        self.metrics = metrics
 
         return self.metrics
 
     def run(self):
         self.updater.start_polling()
-        self.updater.idle()        
+        self.updater.idle()
 
-    def vacancies_count(self, update, context):
-        result = self.metrics['superjob_metrics.n_count'].sum()
-        update.message.reply_text(
-            f"Currently there are total {result} vacancies"
+    def send_image(self, update, context, image):
+        bio = io.BytesIO()
+        image.savefig(bio, format='png')
+        bio.seek(0)
+        context.bot.send_photo(
+            update.message.chat_id, photo=bio
         )
 
-    def salary_stat(self, update, context):
-        result = self.metrics.to_dict()
-        update.message.reply_text(f'{result}')
+    def command_vacancies_count(self, update, context):
+        
+        result = self.metrics['n_count'].sum()
+        update.message.reply_text(
+            f"Currently there are {int(result)} vacancies in total"
+        )
+
+        table = self.plot_table(
+            df=self.metrics[['keyword', 'n_count']]
+        )
+        self.send_image(
+            update, 
+            context, 
+            table
+        )
+
+        plot = self.plot_metrics(
+            df=self.metrics,
+            col='n_count'
+        )
+        self.send_image(
+            update, 
+            context, 
+            plot
+        )
+
+    def command_salary_stat(self, update, context):
+
+        update.message.reply_text(
+            'Here is current salary statistics'
+        )        
+
+        table = self.plot_table(
+            df=self.metrics
+        )
+        self.send_image(
+            update, 
+            context, 
+            table
+        )
+
+        for el in ['mean', 'median', 'min', 'max']:
+            salary_plot = self.plot_metrics(
+                self.metrics,
+                f'{el}_salary'
+            )
+            self.send_image(
+                update, 
+                context, 
+                salary_plot
+            )
     
     @staticmethod
     def start(update, context):
@@ -77,5 +145,41 @@ class SuperjobAnalyticsBot:
         update.message.reply_text(answer)
 
     @staticmethod
-    def echo(update, context):
+    def command_echo(update, context):
         update.message.reply_text('You said: ' + update.message.text)
+
+    @staticmethod
+    def plot_metrics(df, col: str):
+        plt.figure(figsize=(10, 6))
+        sns.barplot(
+            x=col,
+            y='keyword',
+            data=df.dropna(), 
+            palette='viridis'
+        )
+        plt.title(f'{col} by keyword')
+        plt.gcf().patch.set_facecolor('none')
+        plt.gca().set_axisbelow(True)
+        plt.grid(
+            color='gray', 
+            linestyle='-', 
+            linewidth=0.25, 
+            alpha=0.5
+        )
+        plt.tight_layout()
+        return plt
+    
+    @staticmethod
+    def plot_table(df):
+        _, ax = plt.subplots(
+            figsize=(12, 3)
+        )
+        table = ax.table(
+            cellText=df.values, 
+            colLabels=df.columns, 
+            loc='center'
+        )
+        table.scale(1.4, 1.4)
+        ax.axis('off')
+        plt.tight_layout()
+        return plt
