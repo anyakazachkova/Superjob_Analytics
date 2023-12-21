@@ -4,12 +4,14 @@ source /home/anyakazachkova/Superjob_Parser/bash_scripts/credentials.conf
 
 sshpass -p $ARHIMAG_PASSWORD ssh study.apxumar.ru << 'ENDSSH'
 
+hdfs dfs -rm -r /user/hive/warehouse/superjob_metrics
+
 source credentials.conf
 beeline -u jdbc:hive2://rc1b-dataproc-m-52f2v3qpq6q2ydjz.mdb.yandexcloud.net:10000 -n $ARHIMAG_USERNAME -p $ARHIMAG_PASSWORD << 'ENDHIVE'
 
 DROP TABLE superjob_metrics;
 
-CREATE EXTERNAL TABLE IF NOT EXISTS superjob_metrics (
+CREATE EXTERNAL TABLE superjob_metrics (
     keyword STRING,
     min_salary DOUBLE,
     max_salary DOUBLE,
