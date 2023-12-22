@@ -31,7 +31,7 @@ PARSING_PARAMS = {
 
 dag = DAG(
 	dag_id='parsing_dag',
-    schedule_interval="30 15 * * *",
+    schedule_interval="5 20 * * *",
     start_date=days_ago(2),
     catchup=False,
     tags=["BigDataProject"],

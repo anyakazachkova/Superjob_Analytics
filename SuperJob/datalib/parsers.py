@@ -53,7 +53,7 @@ class SuperjobParser:
                 items = tree.find_all(
                                     'span', 
                                     {
-                                        'class': '_3xQyu _3h-Il Ev2_p _3vg36 _133uk rPK4q _2ASNn bb-JF'
+                                        'class': '_1OOGs _3_rja _14CyU GW9WK _2A2p8 _3D3LC _3NGVr _1qwO8'
                                     }
                                 )
 
@@ -102,7 +102,7 @@ class SuperjobParser:
                 salary = tree.find_all(
                     'span', 
                     {
-                        'class': '_2eYAG _133uk rPK4q Mq4Ti'
+                        'class': '_2eYAG _2A2p8 _3D3LC embTL'
                     }
                 )[0].text
                 vacancy_info['min_salary'], vacancy_info['max_salary'] = \
@@ -117,14 +117,14 @@ class SuperjobParser:
                 data_found = tree.find_all(
                     'span',
                     {
-                        'class': '_38__N rPK4q Mq4Ti'
+                        'class': '_2ZFJw _3D3LC embTL'
                     }
                 )
                 vacancy_info['experience'], vacancy_info['employment'] = \
                                 self._prepare_requirements_string(data_found)
             except Exception as e:
                 self.logger.exception(
-                    f'Error while parsing education requirement in {href}: {e}'
+                    f'Error while parsing experience/employment requirement in {href}: {e}'
                 )
 
             # get education requirements
@@ -132,7 +132,7 @@ class SuperjobParser:
                 data_found = tree.find_all(
                     'span',
                     {
-                        'class': '_38__N rPK4q k11EZ'
+                        'class': '_2ZFJw _3D3LC _1Ea_v'
                     }
                 )
                 vacancy_info['education'] = \
@@ -152,7 +152,7 @@ class SuperjobParser:
                 )[0].text
             except Exception as e:
                 self.logger.exception(
-                    f'Error while parsing education address, experience, employment in {href}: {e}'
+                    f'Error while parsing address in {href}: {e}'
                 )
             
             # get description
@@ -160,7 +160,7 @@ class SuperjobParser:
                 vacancy_info['description'] = tree.find_all(
                     'span',
                     {
-                        'class': '_39I1Z _2u6Iv rPK4q _2ASNn Mq4Ti MFNgx'
+                        'class': '_39I1Z _2ITlL _3D3LC _3NGVr embTL _1zNVc'
                     }
                 )[0].text
             except Exception as e:
@@ -193,11 +193,15 @@ class SuperjobParser:
     
     def save_result(self, 
                     df: pd.DataFrame, 
-                    path: str
+                    path: str,
+                    option: str = 'parquet'
                     ) -> None:
-        os.makedirs(path, exist_ok=True)
-        dd.from_pandas(df, chunksize=self.chunksize) \
-            .to_parquet(path)
+        if option == 'parquet':
+            os.makedirs(path, exist_ok=True)
+            dd.from_pandas(df, chunksize=self.chunksize) \
+                .to_parquet(path)
+        if option == 'csv':
+            df.to_csv(f'{path}.csv')
         
     @staticmethod
     def _prepare_salary_string(text):
