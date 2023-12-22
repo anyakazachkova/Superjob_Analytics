@@ -5,7 +5,7 @@ WORKDIR /Telegram-Bot
 COPY requirements_tg.txt ./
 COPY main_tg.py ./
 COPY superjob_analytics_bot.py ./
-COPY keys_tg.py ./
+COPY keys.py ./
 
 RUN pip install -r requirements_tg.txt
 

@@ -4,7 +4,6 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-from prettytable import PrettyTable
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
@@ -40,7 +39,7 @@ class SuperjobAnalyticsBot:
         self.dispatcher.add_handler(echo_handler)
 
     def load_calculated_metrics(self):
-        with open('/home/anyakazachkova/Superjob_Parser/results/superjob_metrics.csv', 
+        with open('results/superjob_metrics.csv', 
                   'r', encoding='utf-8') as file:
             csv_data = file.read()
 
