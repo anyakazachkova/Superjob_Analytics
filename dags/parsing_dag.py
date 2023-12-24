@@ -5,6 +5,7 @@ from typing import NoReturn
 from airflow.operators.python import PythonOperator
 from airflow.models import DAG
 from airflow.utils.dates import days_ago
+import pendulum
 
 sys.path.append("Superjob_Parser")
 sys.path.append(
@@ -31,8 +32,8 @@ PARSING_PARAMS = {
 
 dag = DAG(
 	dag_id='parsing_dag',
-    schedule_interval="30 15 * * *",
-    start_date=days_ago(2),
+    schedule_interval="00 22 * * *",
+    start_date=pendulum.datetime(2023, 12, 22, tz="Europe/Moscow"),
     catchup=False,
     tags=["BigDataProject"],
     default_args=DEFAULT_ARGS

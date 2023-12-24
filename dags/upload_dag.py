@@ -2,7 +2,7 @@ import os
 import sys
 from airflow import DAG
 from airflow.operators.bash import BashOperator
-from datetime import timedelta
+from datetime import datetime, timedelta
 from airflow.models import DAG
 from airflow.utils.dates import days_ago
 
@@ -25,7 +25,7 @@ DEFAULT_ARGS = {
 
 dag = DAG(
 	dag_id='upload_data_dag',
-    schedule_interval="0 18 * * *",
+    schedule_interval="40 23 * * *",
     start_date=days_ago(2),
     catchup=False,
     tags=["BigDataProject"],
@@ -45,4 +45,10 @@ task_calculate_metrics = BashOperator(
     dag=dag
 )
 
-task_upload_data >> task_calculate_metrics
+task_get_metrics = BashOperator(
+    task_id='get_metrics',
+    bash_command=f'bash {ROOT_PATH}/bash_scripts/get_metrics.sh ',
+    dag=dag
+)
+
+task_upload_data >> task_calculate_metrics >> task_get_metrics
