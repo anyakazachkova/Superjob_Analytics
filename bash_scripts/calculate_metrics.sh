@@ -12,7 +12,8 @@ beeline -u jdbc:hive2://rc1b-dataproc-m-52f2v3qpq6q2ydjz.mdb.yandexcloud.net:100
 DROP TABLE superjob_metrics;
 
 CREATE EXTERNAL TABLE superjob_metrics (
-    keyword STRING,
+    group_name STRING,
+    group_type STRING,
     min_salary DOUBLE,
     max_salary DOUBLE,
     mean_salary DOUBLE,
@@ -22,9 +23,10 @@ CREATE EXTERNAL TABLE superjob_metrics (
 STORED AS PARQUET;
 
 INSERT INTO 
-    superjob_metrics (keyword, min_salary, max_salary, mean_salary, median_salary, n_count)
+    superjob_metrics (group_name, group_type, min_salary, max_salary, mean_salary, median_salary, n_count)
     SELECT
-        'Python' AS keyword,
+        'Python' AS group_name,
+        'keyword' AS group_type,
         MIN(min_salary) min_salary, 
         MAX(min_salary) max_salary, 
         AVG(min_salary) mean_salary, 
@@ -36,9 +38,10 @@ INSERT INTO
         LOWER(description) LIKE '%python%';
 
 INSERT INTO 
-    superjob_metrics (keyword, min_salary, max_salary, mean_salary, median_salary, n_count)
+    superjob_metrics (group_name, group_type, min_salary, max_salary, mean_salary, median_salary, n_count)
     SELECT
-        'SQL' AS keyword,
+        'SQL' AS group_name,
+        'keyword' AS group_type,
         MIN(min_salary) min_salary, 
         MAX(min_salary) max_salary, 
         AVG(min_salary) mean_salary, 
@@ -51,9 +54,10 @@ INSERT INTO
 
 
 INSERT INTO 
-    superjob_metrics (keyword, min_salary, max_salary, mean_salary, median_salary, n_count)
+    superjob_metrics (group_name, group_type, min_salary, max_salary, mean_salary, median_salary, n_count)
     SELECT
-        'linux' AS keyword,
+        'linux' AS group_name,
+        'keyword' AS group_type,
         MIN(min_salary) min_salary, 
         MAX(min_salary) max_salary, 
         AVG(min_salary) mean_salary, 
@@ -65,9 +69,10 @@ INSERT INTO
         LOWER(description) LIKE '%linux%';
 
 INSERT INTO 
-    superjob_metrics (keyword, min_salary, max_salary, mean_salary, median_salary, n_count)
+    superjob_metrics (group_name, group_type, min_salary, max_salary, mean_salary, median_salary, n_count)
     SELECT
-        'C++' AS keyword,
+        'C++' AS group_name,
+        'keyword' AS group_type,
         MIN(min_salary) min_salary, 
         MAX(min_salary) max_salary, 
         AVG(min_salary) mean_salary, 
@@ -79,9 +84,10 @@ INSERT INTO
         LOWER(description) LIKE '%c++%';
 
 INSERT INTO 
-    superjob_metrics (keyword, min_salary, max_salary, mean_salary, median_salary, n_count)
+    superjob_metrics (group_name, group_type, min_salary, max_salary, mean_salary, median_salary, n_count)
     SELECT
-        'Go' AS keyword,
+        'Go' AS group_name,
+        'keyword' AS group_type,
         MIN(min_salary) min_salary, 
         MAX(min_salary) max_salary, 
         AVG(min_salary) mean_salary, 
@@ -93,9 +99,10 @@ INSERT INTO
         LOWER(description) LIKE '%go%';
 
 INSERT INTO 
-    superjob_metrics (keyword, min_salary, max_salary, mean_salary, median_salary, n_count)
+    superjob_metrics (group_name, group_type, min_salary, max_salary, mean_salary, median_salary, n_count)
     SELECT
-        'Docker' AS keyword,
+        'Docker' AS group_name,
+        'keyword' AS group_type,
         MIN(min_salary) min_salary, 
         MAX(min_salary) max_salary, 
         AVG(min_salary) mean_salary, 
@@ -107,9 +114,10 @@ INSERT INTO
         LOWER(description) LIKE '%docker%';
 
 INSERT INTO 
-    superjob_metrics (keyword, min_salary, max_salary, mean_salary, median_salary, n_count)
+    superjob_metrics (group_name, group_type, min_salary, max_salary, mean_salary, median_salary, n_count)
     SELECT
-        'Machine Learning' AS keyword,
+        'Machine Learning' AS group_name,
+        'keyword' AS group_type,
         MIN(min_salary) min_salary, 
         MAX(min_salary) max_salary, 
         AVG(min_salary) mean_salary, 
@@ -120,6 +128,58 @@ INSERT INTO
     WHERE
         LOWER(description) LIKE '%machine learning%';
 
+INSERT INTO 
+    superjob_metrics (group_name, group_type, min_salary, max_salary, mean_salary, median_salary, n_count)
+    SELECT
+        experience AS group_name,
+        'experience' AS group_type,
+        MIN(min_salary) min_salary, 
+        MAX(min_salary) max_salary, 
+        AVG(min_salary) mean_salary, 
+        PERCENTILE(cast(min_salary as BIGINT), 0.5) median_salary,
+        COUNT(1) n_count
+    FROM 
+        superjob_data
+    WHERE
+        experience IS NOT NULL
+    GROUP BY
+        experience;
+
+
+INSERT INTO 
+    superjob_metrics (group_name, group_type, min_salary, max_salary, mean_salary, median_salary, n_count)
+    SELECT
+        education AS group_name,
+        'education' AS group_type,
+        MIN(min_salary) min_salary, 
+        MAX(min_salary) max_salary, 
+        AVG(min_salary) mean_salary, 
+        PERCENTILE(cast(min_salary as BIGINT), 0.5) median_salary,
+        COUNT(1) n_count
+    FROM 
+        superjob_data
+    WHERE
+        education IS NOT NULL
+    GROUP BY
+        education;
+
+
+INSERT INTO 
+    superjob_metrics (group_name, group_type, min_salary, max_salary, mean_salary, median_salary, n_count)
+    SELECT
+        employment AS group_name,
+        'employment' AS group_type,
+        MIN(min_salary) min_salary, 
+        MAX(min_salary) max_salary, 
+        AVG(min_salary) mean_salary, 
+        PERCENTILE(cast(min_salary as BIGINT), 0.5) median_salary,
+        COUNT(1) n_count
+    FROM 
+        superjob_data
+    WHERE
+        employment IS NOT NULL
+    GROUP BY
+        employment;
 
 ENDHIVE
 

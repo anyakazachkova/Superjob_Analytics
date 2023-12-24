@@ -23,9 +23,17 @@ class SuperjobAnalyticsBot:
             'vacancies_count', 
             self.command_vacancies_count
         )
-        salary_stat_handler = CommandHandler(
-            'salary_stat', 
-            self.command_salary_stat
+        salary_stat_by_keyword_handler = CommandHandler(
+            'salary_stat_by_keyword', 
+            self.command_salary_stat_by_keyword
+        )
+        salary_stat_by_experience_handler = CommandHandler(
+            'salary_stat_by_experience', 
+            self.command_salary_stat_by_experience
+        )
+        salary_stat_by_employment_handler = CommandHandler(
+            'salary_stat_by_employment', 
+            self.command_salary_stat_by_employment
         )
         echo_handler = MessageHandler(
             Filters.text & ~Filters.command, 
@@ -35,7 +43,9 @@ class SuperjobAnalyticsBot:
 
         self.dispatcher.add_handler(start_handler)
         self.dispatcher.add_handler(vacancies_count_handler)
-        self.dispatcher.add_handler(salary_stat_handler)
+        self.dispatcher.add_handler(salary_stat_by_keyword_handler)
+        self.dispatcher.add_handler(salary_stat_by_experience_handler)
+        self.dispatcher.add_handler(salary_stat_by_employment_handler)
         self.dispatcher.add_handler(echo_handler)
 
     def load_calculated_metrics(self):
@@ -61,7 +71,7 @@ class SuperjobAnalyticsBot:
             for col in metrics.columns
         ]
 
-        metrics.iloc[:, 1:] = metrics.iloc[:, 1:] \
+        metrics.iloc[:, 2:] = metrics.iloc[:, 2:] \
                                 .replace('NULL', np.nan) \
                                 .astype(float) \
                                 .round(2)
@@ -91,7 +101,11 @@ class SuperjobAnalyticsBot:
         )
 
         table = self.plot_table(
-            df=self.metrics[['keyword', 'n_count']]
+            df=self.metrics[
+                ['group_name', 'group_type',
+                 'n_count'
+                 ]
+            ]
         )
         self.send_image(
             update, 
@@ -109,14 +123,36 @@ class SuperjobAnalyticsBot:
             plot
         )
 
-    def command_salary_stat(self, update, context):
+    def command_salary_stat_by_keyword(self, update, context):
+        self.salary_stat(
+            update,
+            context,
+            group_type='keyword'
+        )
+
+    def command_salary_stat_by_experience(self, update, context):
+        self.salary_stat(
+            update,
+            context,
+            group_type='experience'
+        )
+
+    def command_salary_stat_by_employment(self, update, context):
+        self.salary_stat(
+            update,
+            context,
+            group_type='employment'
+        )
+
+    def salary_stat(self, update, context, group_type):
 
         update.message.reply_text(
             'Here is current salary statistics'
         )        
 
         table = self.plot_table(
-            df=self.metrics
+            df=self.metrics,
+            group_type=group_type
         )
         self.send_image(
             update, 
@@ -127,7 +163,8 @@ class SuperjobAnalyticsBot:
         for el in ['mean', 'median', 'min', 'max']:
             salary_plot = self.plot_metrics(
                 self.metrics,
-                f'{el}_salary'
+                f'{el}_salary',
+                group_type=group_type
             )
             self.send_image(
                 update, 
@@ -140,7 +177,9 @@ class SuperjobAnalyticsBot:
         answer = "Start\n"
         answer += "/start - Start the bot\n"
         answer += "/vacancies_count - Show amount of vacancies\n"
-        answer += "/salary_stat - Show current salary statistics"
+        answer += "/salary_stat_by_keyword - Show current salary statistics by keyword\n"
+        answer += "/salary_stat_by_experience - Show current salary statistics by experience\n"
+        answer += "/salary_stat_by_employment - Show current salary statistics by employment\n"
         update.message.reply_text(answer)
 
     @staticmethod
@@ -148,17 +187,28 @@ class SuperjobAnalyticsBot:
         update.message.reply_text('You said: ' + update.message.text)
 
     @staticmethod
-    def plot_metrics(df, col: str):
+    def plot_metrics(df, 
+                     col: str,
+                     group_type: str = 'keyword'
+                     ):
+        data = df.loc[
+            df['group_type'] == group_type
+        ]
+        
         plt.figure(figsize=(10, 6))
         sns.barplot(
             x=col,
-            y='keyword',
-            data=df.dropna(), 
+            y='group_name',
+            data=data.dropna(), 
             palette='viridis'
         )
-        plt.title(f'{col} by keyword')
+        plt.title(f'{col} by {group_type}')
         plt.gcf().patch.set_facecolor('none')
         plt.gca().set_axisbelow(True)
+        plt.xlabel(
+            f'{col}, RUB per month' 
+            if col != 'n_count' else f'{col}'
+        )
         plt.grid(
             color='gray', 
             linestyle='-', 
@@ -169,13 +219,18 @@ class SuperjobAnalyticsBot:
         return plt
     
     @staticmethod
-    def plot_table(df):
+    def plot_table(df,
+                   group_type: str = 'keyword'
+                   ):
+        data = df.loc[
+            df['group_type'] == group_type
+        ]
         _, ax = plt.subplots(
             figsize=(12, 3)
         )
         table = ax.table(
-            cellText=df.values, 
-            colLabels=df.columns, 
+            cellText=data.values, 
+            colLabels=data.columns, 
             loc='center'
         )
         table.scale(1.4, 1.4)
