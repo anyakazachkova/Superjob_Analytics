@@ -53,7 +53,7 @@ class SuperjobParser:
                 items = tree.find_all(
                                     'span', 
                                     {
-                                        'class': '_1OOGs _3_rja _14CyU GW9WK _2A2p8 _3D3LC _3NGVr _1qwO8'
+                                        'class': 'nkSpg _2lCfe _3cVrZ crAxr _1sLCm _3kzFG _2zux5 sS9qt'
                                     }
                                 )
 
@@ -102,7 +102,7 @@ class SuperjobParser:
                 salary = tree.find_all(
                     'span', 
                     {
-                        'class': '_2eYAG _2A2p8 _3D3LC embTL'
+                        'class': '_2eYAG _1sLCm _3kzFG lU8Yn'
                     }
                 )[0].text
                 vacancy_info['min_salary'], vacancy_info['max_salary'] = \
@@ -117,7 +117,7 @@ class SuperjobParser:
                 data_found = tree.find_all(
                     'span',
                     {
-                        'class': '_2ZFJw _3D3LC embTL'
+                        'class': '_1EAtt _3kzFG lU8Yn'
                     }
                 )
                 vacancy_info['experience'], vacancy_info['employment'] = \
@@ -132,7 +132,7 @@ class SuperjobParser:
                 data_found = tree.find_all(
                     'span',
                     {
-                        'class': '_2ZFJw _3D3LC _1Ea_v'
+                        'class': '_1EAtt _3kzFG _3HlED'
                     }
                 )
                 vacancy_info['education'] = \
@@ -160,7 +160,7 @@ class SuperjobParser:
                 vacancy_info['description'] = tree.find_all(
                     'span',
                     {
-                        'class': '_39I1Z _2ITlL _3D3LC _3NGVr embTL _1zNVc'
+                        'class': '_39I1Z _1KwXc _3kzFG _2zux5 lU8Yn _1o3OU'
                     }
                 )[0].text
             except Exception as e:
@@ -199,7 +199,7 @@ class SuperjobParser:
         if option == 'parquet':
             os.makedirs(path, exist_ok=True)
             dd.from_pandas(df, chunksize=self.chunksize) \
-                .to_parquet(path)
+                .to_parquet(path, overwrite=True)
         if option == 'csv':
             df.to_csv(f'{path}.csv')
         
