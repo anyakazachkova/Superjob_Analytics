@@ -5,6 +5,7 @@ from airflow.operators.bash import BashOperator
 from datetime import datetime, timedelta
 from airflow.models import DAG
 from airflow.utils.dates import days_ago
+import pendulum
 
 sys.path.append(
     os.path.join(
@@ -25,8 +26,8 @@ DEFAULT_ARGS = {
 
 dag = DAG(
 	dag_id='upload_data_dag',
-    schedule_interval="40 23 * * *",
-    start_date=days_ago(2),
+    schedule_interval="00 23 * * *",
+    start_date=pendulum.datetime(2023, 12, 22, tz="Europe/Moscow"),
     catchup=False,
     tags=["BigDataProject"],
     default_args=DEFAULT_ARGS
