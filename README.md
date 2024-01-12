@@ -1,6 +1,6 @@
 # Superjob Analytics
 
-Целью данного проекта анализ IT вакансий, размещенных на [ресурсе Superjob](www.superjob.ru/vakansii/it-internet-svyaz-telekom/). </br>
+Целью данного проекта анализ IT вакансий, размещенных на [ресурсе Superjob](https://www.superjob.ru/vakansii/it-internet-svyaz-telekom/). </br>
 Проект состоит из 4 этапов:
 
 ### 1. Регулярное скачивание данных
